@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import math
 pygame.init()
 screen_info = pygame.display.Info()
 WIDTH, HEIGHT = screen_info.current_w, screen_info.current_h
@@ -127,6 +128,101 @@ class Bird(Animal):
         rotated_wing = pygame.transform.rotate(wing_surface, wing_angle * self.direction)
         wing_rect = rotated_wing.get_rect(center=(self.x, wing_y))
         screen.blit(rotated_wing, wing_rect)
+class Bunny(Animal):
+    '''''
+    code break 🍹🍸
+    This is from Wikipedia about rabbits/Bunnies::Disclaimer just to stop me from becoming one after this code😂😂
+    Wikipedia::: Rabbits are small mammals in the family Leporidae, which is in the order Lagomorpha
+    '''''
+    def __init__(self, x, y, speed):
+        super().__init__(x, y, speed)
+        self.ear_state =0
+        self.ear_timer=0
+        self.sit_timer=random.randint(60,180)
+        self.is_sitting=True
+        self.hop_state=0
+        self.color_options=[
+            {"body": (200, 200, 200), "belly": (240, 240, 240), "nose": (255, 150, 150)},
+            {"body": (210, 180, 140), "belly": (230, 210, 180), "nose": (255, 150, 150)},
+            {"body": (165, 145, 130), "belly": (200, 180, 160), "nose": (255, 150, 150)},
+            {"body": (240, 240, 240), "belly": (255, 255, 255), "nose": (255, 150, 150)},
+            {"body": (90, 90, 90), "belly": (130, 130, 130), "nose": (255, 150, 150)} 
+        ]
+        self.color = random.choice(self.color_options)
+        self.size=random.uniform(0.8,1.2)
+        self.speed = speed * 0.5
+    def update(self):
+        if not self.is_sitting:
+            super().update()
+            if self.hop_state <5:
+                self.y=self.base_y- self.hop_state * 3 * math.sin(math.pi * self.hop_state/10)
+            else:
+                self.y = self.base_y - (10 - self.hop_state) * 3 * math.sin(math.pi * (10 - self.hop_state) / 10)
+            self.hop_state = (self.hop_state + 1) % 10
+            if random.random()<0.005:
+                self.is_sitting=True
+                self.sit_timer=random.randint(60,80)
+        else:
+            self.sit_timer-=1
+            if self.sit_timer<=0:
+                self.is_sitting=False
+        self.ear_timer +=1
+        if self.ear_timer>30:
+            self.ear_timer=0
+            self.ear_state=(self.ear_state+1) % 3
+    def draw(self, screen):
+        body_width=40* self.size
+        body_height=20*self.size
+        body_radius=12 * self.size
+        body_rect=pygame.Rect(self.x - body_width/2, self.y - body_height/2, body_width, body_height)
+        pygame.draw.ellipse(screen, self.colors["body"], body_rect)
+        belly_width=body_width*0.7
+        belly_height= body_height*0.7
+        belly_rect =pygame.Rect(
+            self.x - belly_width/2, 
+            self.y - belly_height/2 + body_height * 0.1, 
+            belly_width, 
+            belly_height
+        )
+        pygame.draw.ellipse(screen,self.colors["belly"], belly_rect)
+        head_x= self.x+15* self.direction*self.size
+        pygame.draw.circle(screen, self.colors["body"], (int(head_x), int(self.y - 5 * self.size)), int(head_radius))
+        eye_x = head_x + 4 * self.direction * self.size
+        pygame.draw.circle(screen, BLACK, (int(eye_x), int(self.y - 8 * self.size)), int(3 * self.size))
+        nose_x = head_x + 8 * self.direction * self.size
+        pygame.draw.circle(screen, self.colors["nose"], (int(nose_x), int(self.y - 5 * self.size)), int(3 * self.size))
+        for i in range(3):
+            angle=(i-1)*0.2
+            whisker_length = 10* self.size
+            end_x = nose_x + math.cos(math.pi/2 + angle) * whisker_length * self.direction
+            end_y = self.y - 5 * self.size + math.sin(math.pi/2 + angle) * whisker_length
+            pygame.draw.line(screen, (100, 100, 100), (nose_x, self.y - 5 * self.size), (end_x, end_y), 1)
+        ear_height = [25, 20, 15][self.ear_state] * self.size
+        ear_width = 8 * self.size
+        ear1_x = head_x - 5 * self.direction * self.size
+        #im tired damn😂😂
+        #implemnenig the ear of this bunny 🐇🐰
+        pygame.draw.ellipse(screen, self.colors["body"], 
+                           (ear1_x - ear_width/2, self.y - 30 * self.size, ear_width, ear_height))
+        pygame.draw.ellipse(screen, (255, 200, 200), 
+                           (ear1_x - ear_width/2 + 2, self.y - 30 * self.size + 2, ear_width - 4, ear_height - 4))
+        ear2_x = head_x + 5 * self.direction * self.size
+        #fun fact a bunny has two ears huh
+        pygame.draw.ellipse(screen, self.colors["body"], 
+                           (ear2_x - ear_width/2, self.y - 30 * self.size, ear_width, ear_height))
+        pygame.draw.ellipse(screen, (255, 200, 200),
+                                (ear2_x - ear_width/2 + 2, self.y - 30 * self.size + 2, ear_width - 4, ear_height - 4))
+        if not self.is_sitting:
+            leg_width=15 * self.size
+            leg_height=10* self.size
+            pygame.draw.ellipse(screen, self.colors["body"],
+                                (self.x - body_width/2 - leg_width/2, self.y, leg_width, leg_height))
+        tail_radius = 5 * self.size
+        tail_x = self.x - body_width/2 * self.direction
+        pygame.draw.Circle(screen, WHITE, (int(tail_x), int(self.y)), int(tail_radius))
+##Well done to me 😁🍸🍸 go go Achai 
+
+        
 
 class Button:
     def __init__(self,x,y,width,height,text,color,hover_color,action=None,alpha=255):
