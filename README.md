@@ -1,4 +1,9 @@
 # Weather Environment Simulator ! 
+## Demo
+Demo Video: <URL>
+## GitHub Repository
+GitHub Repo: https://github.com/aaa240015/weatherProjectfinal
+
 ## Description 
 The Weather Environment Simulator is an interactive program in Python that simulates weather conditions and their effects on a natural environment. The Weather Environmental Simulator is written using the Pygame software library. 
 This simulator implements the following features: 
