@@ -222,7 +222,142 @@ class Bunny(Animal):
         pygame.draw.Circle(screen, WHITE, (int(tail_x), int(self.y)), int(tail_radius))
 ##Well done to me 😁🍸🍸 go go Achai 
 
-        
+##now for the rainy weather ill have some frogs jumping here and there
+class Frog(Animal):
+    def __init__(self, x, y, speed):
+        super().__init__(x, y, speed)
+        self.jump_state = 0
+        self.jump_height = 0
+        self.jump_timer = random.randint(30, 120)
+        self.color_options = [
+            {"body": (34, 139, 34), "spots": (25, 100, 25), "belly": (200, 220, 200)},
+            {"body": (107, 142, 35), "spots": (85, 107, 47), "belly": (220, 230, 200)},
+            {"body": (60, 179, 113), "spots": (46, 139, 87), "belly": (200, 255, 200)},
+            {"body": (85, 107, 47), "spots": (60, 80, 30), "belly": (180, 200, 160)},
+            {"body": (143, 188, 143), "spots": (133, 173, 133), "belly": (220, 240, 220)}
+        ]
+        self.colors = random.choice(self.color_options)
+        self.size = random.uniform(0.8, 1.2)
+        self.blink_timer = 0
+        self.is_blinking = False
+    def update(self):
+        if self.jump_state>0:
+            self.x+=self.speed *2 * self.direction
+            if self.jump_state<10:
+                self.jump_height=self.jump_state *4 *math.sin(math.pi * self.jump_state / 20)
+            else:
+                self.jump_height = (20 - self.jump_state) * 4 * math.sin(math.pi * (20 - self.jump_state) / 20)
+            self.y = self.base_y - self.jump_height
+            self.jump_state += 1
+            if self.jump_state >= 20:
+                self.jump_state = 0
+                self.jump_timer = random.randint(30, 120)
+        else:
+            self.jump_timer -= 1
+            if self.jump_timer <= 0:
+                self.jump_state = 1
+        if self.x < 50 or self.x > WIDTH - 50:
+            self.direction *= -1
+        self.blink_timer+=1
+        if self.blink_timer>120:
+            self.is_blinking=True
+            if self.blink_timer>125:
+                self.is_blinking=False
+                self.blink_timer=0
+    def draw(self, screen):
+        body_radius=15*self.size
+        pygame.draw.circle(screen, self.colors["body"], (self.x, self.y), int(body_radius))
+        for _ in range(5):
+            spot_x = self.x + random.uniform(-body_radius/2, body_radius/2)
+            spot_y = self.y + random.uniform(-body_radius/2, body_radius/2)
+            spot_radius = random.uniform(2, 4) * self.size
+            if (spot_x - self.x)**2 + (spot_y - self.y)**2 < (body_radius*0.8)**2:
+                pygame.draw.circle(screen, self.colors["spots"], (int(spot_x), int(spot_y)), int(spot_radius))
+        eye_offset = 8 * self.direction * self.size
+        eye_y_offset = -10 * self.size
+        eye_radius = 5 * self.size
+        pygame.draw.circle(screen, WHITE, 
+                          (int(self.x + eye_offset), int(self.y + eye_y_offset)), 
+                          int(eye_radius))
+        pygame.draw.circle(screen, WHITE, 
+                          (int(self.x + eye_offset - 5 * self.direction * self.size), int(self.y + eye_y_offset)), 
+                          int(eye_radius))
+        if not self.is_blinking:
+            pupil_radius=2*self.size
+            pygame.draw.circle(screen, BLACK, 
+                              (int(self.x + eye_offset), int(self.y + eye_y_offset)), 
+                              int(pupil_radius))
+            pygame.draw.circle(screen, BLACK, 
+                              (int(self.x + eye_offset - 5 * self.direction * self.size), int(self.y + eye_y_offset)), 
+                              int(pupil_radius))
+        else:
+            pygame.draw.line(screen, BLACK, 
+                            (int(self.x + eye_offset - eye_radius), int(self.y + eye_y_offset)),
+                            (int(self.x + eye_offset + eye_radius), int(self.y + eye_y_offset)),
+                            2)
+            pygame.draw.line(screen, BLACK, 
+                            (int(self.x + eye_offset - 5 * self.direction * self.size - eye_radius), int(self.y + eye_y_offset)),
+                            (int(self.x + eye_offset - 5 * self.direction * self.size + eye_radius), int(self.y + eye_y_offset)),
+                            2)
+            mouth_width=10*self.size
+            pygame.draw.arc(screen, (50,50,50),
+                          (self.x - mouth_width/2, self.y, mouth_width, 5 * self.size),
+                       0,math.pi,2)
+            if self.jump_state ==0:
+                leg_width = 20 * self.size
+                leg_height = 10 * self.size
+                pygame.draw.ellipse(screen, self.colors["body"], 
+                               (self.x - leg_width - 5 * self.size, self.y + 5 * self.size, leg_width, leg_height))
+                pygame.draw.ellipse(screen, self.colors["body"], 
+                               (self.x + 5 * self.size, self.y + 5 * self.size, leg_width, leg_height))
+                arm_width=12 * self.size
+                arm_height=6* self.size
+                pygame.draw.ellipse(screen, self.colors["body"], 
+                               (self.x - arm_width/2 - 10 * self.size, self.y - 2 * self.size, arm_width, arm_height))
+                pygame.draw.ellipse(screen, self.colors["body"], 
+                               (self.x - arm_width/2 + 10 * self.size, self.y - 2 * self.size, arm_width, arm_height))
+        #This reminds me of the story of the frog and the princess... i wonder if they wrote a code like this to do the animation
+            else:
+                leg_height=20*self.size
+                leg_width =5 *self.size
+                pygame.draw.line(screen, self.colors["body"], 
+                            (self.x - 10 * self.size, self.y), 
+                            (self.x - 25 * self.size, self.y + 20 * self.size), 
+                            int(leg_width))
+                pygame.draw.line(screen, self.colors["body"], 
+                            (self.x + 10 * self.size, self.y), 
+                            (self.x + 25 * self.size, self.y + 20 * self.size), 
+                            int(leg_width))
+                foot_width=10* self.size
+                foot_height= 5 * self.size
+                pygame.draw.ellipse(
+                    screen,
+                    self.colors["body"],
+                    (self.x - 25 * self.size - foot_width/2, self.y + 20 * self.size - foot_height/2, 
+                                foot_width, foot_height)
+                )
+                pygame.draw.ellipse(screen,
+                                     self.colors["body"], 
+                               (self.x + 25 * self.size - foot_width/2,
+                                 self.y + 20 * self.size - foot_height/2, 
+                                foot_width, 
+                                foot_height))
+                pygame.draw.line(screen, 
+                                 self.colors["body"], 
+                            (self.x - 5 * self.size, 
+                             self.y - 5 * self.size), 
+                            (self.x - 15 * self.size,
+                              self.y - 10 * self.size), 
+                            int(leg_width * 0.7))
+                pygame.draw.line(screen, 
+                                 self.colors["body"], 
+                            (self.x + 5 * self.size, 
+                             self.y - 5 * self.size), 
+                            (self.x + 15 * self.size,
+                              self.y - 10 * self.size), 
+                            int(leg_width * 0.7))
+
+
 
 class Button:
     def __init__(self,x,y,width,height,text,color,hover_color,action=None,alpha=255):
