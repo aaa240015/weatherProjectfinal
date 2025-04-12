@@ -924,11 +924,28 @@ class UI:
         screen.blit(help_surface, (WIDTH // 4, HEIGHT // 4))
 
 def main():
+    weather = Weather()
+    ui = UI()
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                elif event.key == pygame.K_c:
+                    weather.transition_to("calm")
+                elif event.key == pygame.K_s:
+                    weather.transition_to("stormy")
+                elif event.key == pygame.K_h:
+                    weather.transition_to("hot")
+            result = ui.handle_events(event, weather)
+            if result == "exit":
+                running = False
+        weather.update()
+        weather.draw(screen)
+        ui.draw(screen, weather)               
         pygame.display.flip()
         clock.tick(FPS)
     
