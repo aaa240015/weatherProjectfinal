@@ -73,16 +73,16 @@ class Bird(Animal):
     def draw(self, screen):
         body_width =30*self.size
         body_height=15* self.size
-        head_radius=8 * self.size
+        body_radius=8 * self.size
         eye_radius =2 * self.size
-        pygame.draw.ellipse(screen,self.colors["body"],
+        pygame.draw.ellipse(screen,self.color["body"],
                             (self.x-body_width/2, self.y-body_height/2,
                              body_width,body_height)
                             )
-        head_x=self.x+(head_radius+5)*self.direction
-        pygame.draw.circle(screen, self.colors["body"], 
+        head_x=self.x+(body_radius+5)*self.direction
+        pygame.draw.circle(screen, self.color["body"], 
                           (int(head_x), int(self.y)), 
-                          int(head_radius))
+                          int(body_radius))
         eye_x = head_x + 2 * self.direction
         pygame.draw.circle(screen, WHITE, 
                           (int(eye_x), int(self.y - 2)), 
@@ -93,11 +93,11 @@ class Bird(Animal):
         beak_length = 6*self.size
         beak_height=4*self.size
         beak_points=[
-            (head_x + head_radius * self.direction, self.y),
-            (head_x + (head_radius + beak_length) * self.direction, self.y - beak_height/2),
-            (head_x + (head_radius + beak_length) * self.direction, self.y + beak_height/2)
+            (head_x + body_radius * self.direction, self.y),
+            (head_x + (body_radius + beak_length) * self.direction, self.y - beak_height/2),
+            (head_x + (body_radius + beak_length) * self.direction, self.y + beak_height/2)
         ]
-        pygame.draw.polygon(screen, self.colors["beak"],beak_points)
+        pygame.draw.polygon(screen, self.color["beak"],beak_points)
         tail_width=12* self.size
         tail_height=10*self.size
         tail_x=self.x-body_width/2 - tail_width/2 *self.direction
@@ -107,7 +107,7 @@ class Bird(Animal):
             (tail_x - tail_width * self.direction, self.y),
             (tail_x - tail_width/2 * self.direction, self.y + tail_height/2)
         ]
-        pygame.draw.polygon(screen, self.colors["body"], tail_points)
+        pygame.draw.polygon(screen, self.color["body"], tail_points)
         wing_width = 20 * self.size
         wing_height = 10 * self.size
         if self.wing_state == 0:
@@ -123,7 +123,7 @@ class Bird(Animal):
             wing_y = self.y + body_height/2
             wing_angle = 20
         wing_surface = pygame.Surface((wing_width, wing_height), pygame.SRCALPHA)
-        pygame.draw.ellipse(wing_surface, self.colors["wing"], 
+        pygame.draw.ellipse(wing_surface, self.color["wing"], 
                            (0, 0, wing_width, wing_height))
         rotated_wing = pygame.transform.rotate(wing_surface, wing_angle * self.direction)
         wing_rect = rotated_wing.get_rect(center=(self.x, wing_y))
@@ -175,7 +175,7 @@ class Bunny(Animal):
         body_height=20*self.size
         body_radius=12 * self.size
         body_rect=pygame.Rect(self.x - body_width/2, self.y - body_height/2, body_width, body_height)
-        pygame.draw.ellipse(screen, self.colors["body"], body_rect)
+        pygame.draw.ellipse(screen, self.color["body"], body_rect)
         belly_width=body_width*0.7
         belly_height= body_height*0.7
         belly_rect =pygame.Rect(
@@ -184,13 +184,13 @@ class Bunny(Animal):
             belly_width, 
             belly_height
         )
-        pygame.draw.ellipse(screen,self.colors["belly"], belly_rect)
+        pygame.draw.ellipse(screen,self.color["belly"], belly_rect)
         head_x= self.x+15* self.direction*self.size
-        pygame.draw.circle(screen, self.colors["body"], (int(head_x), int(self.y - 5 * self.size)), int(head_radius))
+        pygame.draw.circle(screen, self.color["body"], (int(head_x), int(self.y - 5 * self.size)), int(body_radius))
         eye_x = head_x + 4 * self.direction * self.size
         pygame.draw.circle(screen, BLACK, (int(eye_x), int(self.y - 8 * self.size)), int(3 * self.size))
         nose_x = head_x + 8 * self.direction * self.size
-        pygame.draw.circle(screen, self.colors["nose"], (int(nose_x), int(self.y - 5 * self.size)), int(3 * self.size))
+        pygame.draw.circle(screen, self.color["nose"], (int(nose_x), int(self.y - 5 * self.size)), int(3 * self.size))
         for i in range(3):
             angle=(i-1)*0.2
             whisker_length = 10* self.size
@@ -202,24 +202,24 @@ class Bunny(Animal):
         ear1_x = head_x - 5 * self.direction * self.size
         #im tired damn😂😂
         #implemnenig the ear of this bunny 🐇🐰
-        pygame.draw.ellipse(screen, self.colors["body"], 
+        pygame.draw.ellipse(screen, self.color["body"], 
                            (ear1_x - ear_width/2, self.y - 30 * self.size, ear_width, ear_height))
         pygame.draw.ellipse(screen, (255, 200, 200), 
                            (ear1_x - ear_width/2 + 2, self.y - 30 * self.size + 2, ear_width - 4, ear_height - 4))
         ear2_x = head_x + 5 * self.direction * self.size
         #fun fact a bunny has two ears huh
-        pygame.draw.ellipse(screen, self.colors["body"], 
+        pygame.draw.ellipse(screen, self.color["body"], 
                            (ear2_x - ear_width/2, self.y - 30 * self.size, ear_width, ear_height))
         pygame.draw.ellipse(screen, (255, 200, 200),
                                 (ear2_x - ear_width/2 + 2, self.y - 30 * self.size + 2, ear_width - 4, ear_height - 4))
         if not self.is_sitting:
             leg_width=15 * self.size
             leg_height=10* self.size
-            pygame.draw.ellipse(screen, self.colors["body"],
+            pygame.draw.ellipse(screen, self.color["body"],
                                 (self.x - body_width/2 - leg_width/2, self.y, leg_width, leg_height))
         tail_radius = 5 * self.size
         tail_x = self.x - body_width/2 * self.direction
-        pygame.draw.Circle(screen, WHITE, (int(tail_x), int(self.y)), int(tail_radius))
+        pygame.draw.circle(screen, WHITE, (int(tail_x), int(self.y)), int(tail_radius))
 ##Well done to me 😁🍸🍸 go go Achai 
 
 ##now for the rainy weather ill have some frogs jumping here and there
@@ -240,11 +240,12 @@ class Frog(Animal):
         self.size = random.uniform(0.8, 1.2)
         self.blink_timer = 0
         self.is_blinking = False
+
     def update(self):
-        if self.jump_state>0:
-            self.x+=self.speed *2 * self.direction
-            if self.jump_state<10:
-                self.jump_height=self.jump_state *4 *math.sin(math.pi * self.jump_state / 20)
+        if self.jump_state > 0:
+            self.x += self.speed * 2 * self.direction
+            if self.jump_state < 10:
+                self.jump_height = self.jump_state * 4 * math.sin(math.pi * self.jump_state / 20)
             else:
                 self.jump_height = (20 - self.jump_state) * 4 * math.sin(math.pi * (20 - self.jump_state) / 20)
             self.y = self.base_y - self.jump_height
@@ -258,14 +259,15 @@ class Frog(Animal):
                 self.jump_state = 1
         if self.x < 50 or self.x > WIDTH - 50:
             self.direction *= -1
-        self.blink_timer+=1
-        if self.blink_timer>120:
-            self.is_blinking=True
-            if self.blink_timer>125:
-                self.is_blinking=False
-                self.blink_timer=0
+        self.blink_timer += 1
+        if self.blink_timer > 120:
+            self.is_blinking = True
+            if self.blink_timer > 125:
+                self.is_blinking = False
+                self.blink_timer = 0
+
     def draw(self, screen):
-        body_radius=15*self.size
+        body_radius = 15 * self.size
         pygame.draw.circle(screen, self.colors["body"], (self.x, self.y), int(body_radius))
         for _ in range(5):
             spot_x = self.x + random.uniform(-body_radius/2, body_radius/2)
@@ -283,7 +285,7 @@ class Frog(Animal):
                           (int(self.x + eye_offset - 5 * self.direction * self.size), int(self.y + eye_y_offset)), 
                           int(eye_radius))
         if not self.is_blinking:
-            pupil_radius=2*self.size
+            pupil_radius = 2 * self.size
             pygame.draw.circle(screen, BLACK, 
                               (int(self.x + eye_offset), int(self.y + eye_y_offset)), 
                               int(pupil_radius))
@@ -299,62 +301,50 @@ class Frog(Animal):
                             (int(self.x + eye_offset - 5 * self.direction * self.size - eye_radius), int(self.y + eye_y_offset)),
                             (int(self.x + eye_offset - 5 * self.direction * self.size + eye_radius), int(self.y + eye_y_offset)),
                             2)
-            mouth_width=10*self.size
-            pygame.draw.arc(screen, (50,50,50),
-                          (self.x - mouth_width/2, self.y, mouth_width, 5 * self.size),
-                       0,math.pi,2)
-            if self.jump_state ==0:
-                leg_width = 20 * self.size
-                leg_height = 10 * self.size
-                pygame.draw.ellipse(screen, self.colors["body"], 
+        mouth_width = 10 * self.size
+        pygame.draw.arc(screen, (50, 50, 50), 
+                       (self.x - mouth_width/2, self.y, mouth_width, 5 * self.size),
+                       0, math.pi, 2)
+        if self.jump_state == 0:
+            leg_width = 20 * self.size
+            leg_height = 10 * self.size
+            pygame.draw.ellipse(screen, self.colors["body"], 
                                (self.x - leg_width - 5 * self.size, self.y + 5 * self.size, leg_width, leg_height))
-                pygame.draw.ellipse(screen, self.colors["body"], 
+            pygame.draw.ellipse(screen, self.colors["body"], 
                                (self.x + 5 * self.size, self.y + 5 * self.size, leg_width, leg_height))
-                arm_width=12 * self.size
-                arm_height=6* self.size
-                pygame.draw.ellipse(screen, self.colors["body"], 
+            arm_width = 12 * self.size
+            arm_height = 6 * self.size
+            pygame.draw.ellipse(screen, self.colors["body"], 
                                (self.x - arm_width/2 - 10 * self.size, self.y - 2 * self.size, arm_width, arm_height))
-                pygame.draw.ellipse(screen, self.colors["body"], 
+            pygame.draw.ellipse(screen, self.colors["body"], 
                                (self.x - arm_width/2 + 10 * self.size, self.y - 2 * self.size, arm_width, arm_height))
-        #This reminds me of the story of the frog and the princess... i wonder if they wrote a code like this to do the animation
-            else:
-                leg_height=20*self.size
-                leg_width =5 *self.size
-                pygame.draw.line(screen, self.colors["body"], 
+               #This reminds me of the story of the frog and the princess... i wonder if they wrote a code like this to do the animation
+        else:
+            leg_length = 20 * self.size
+            leg_width = 5 * self.size
+            pygame.draw.line(screen, self.colors["body"], 
                             (self.x - 10 * self.size, self.y), 
                             (self.x - 25 * self.size, self.y + 20 * self.size), 
                             int(leg_width))
-                pygame.draw.line(screen, self.colors["body"], 
+            pygame.draw.line(screen, self.colors["body"], 
                             (self.x + 10 * self.size, self.y), 
                             (self.x + 25 * self.size, self.y + 20 * self.size), 
                             int(leg_width))
-                foot_width=10* self.size
-                foot_height= 5 * self.size
-                pygame.draw.ellipse(
-                    screen,
-                    self.colors["body"],
-                    (self.x - 25 * self.size - foot_width/2, self.y + 20 * self.size - foot_height/2, 
-                                foot_width, foot_height)
-                )
-                pygame.draw.ellipse(screen,
-                                     self.colors["body"], 
-                               (self.x + 25 * self.size - foot_width/2,
-                                 self.y + 20 * self.size - foot_height/2, 
-                                foot_width, 
-                                foot_height))
-                pygame.draw.line(screen, 
-                                 self.colors["body"], 
-                            (self.x - 5 * self.size, 
-                             self.y - 5 * self.size), 
-                            (self.x - 15 * self.size,
-                              self.y - 10 * self.size), 
+            foot_width = 10 * self.size
+            foot_height = 5 * self.size
+            pygame.draw.ellipse(screen, self.colors["body"], 
+                               (self.x - 25 * self.size - foot_width/2, self.y + 20 * self.size - foot_height/2, 
+                                foot_width, foot_height))
+            pygame.draw.ellipse(screen, self.colors["body"], 
+                               (self.x + 25 * self.size - foot_width/2, self.y + 20 * self.size - foot_height/2, 
+                                foot_width, foot_height))
+            pygame.draw.line(screen, self.colors["body"], 
+                            (self.x - 5 * self.size, self.y - 5 * self.size), 
+                            (self.x - 15 * self.size, self.y - 10 * self.size), 
                             int(leg_width * 0.7))
-                pygame.draw.line(screen, 
-                                 self.colors["body"], 
-                            (self.x + 5 * self.size, 
-                             self.y - 5 * self.size), 
-                            (self.x + 15 * self.size,
-                              self.y - 10 * self.size), 
+            pygame.draw.line(screen, self.colors["body"], 
+                            (self.x + 5 * self.size, self.y - 5 * self.size), 
+                            (self.x + 15 * self.size, self.y - 10 * self.size), 
                             int(leg_width * 0.7))
 class Button:
     def __init__(self,x,y,width,height,text,color,hover_color,action=None,alpha=255):
@@ -364,7 +354,7 @@ class Button:
         self.hover_color=hover_color
         self.action=action
         self.is_hovered=False
-        self.aplha=alpha
+        self.alpha=alpha
     def handle_event(self,event):
         if event.type == pygame.MOUSEMOTION:
             self.is_hovered=self.rect.collidepoint(event.pos)
@@ -397,7 +387,7 @@ class ColorSlider:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 self.dragging=True
-                self.update.knob_position(event.pos[0])
+                self.update_knob_position(event.pos[0])
         elif event.type==pygame.MOUSEBUTTONUP:
                  self.dragging = False
         elif event.type == pygame.MOUSEMOTION and self.dragging:
