@@ -719,6 +719,209 @@ class Weather:
         pygame.draw.rect(screen, GREEN, (0, HEIGHT - 80, WIDTH, 80))
         for animal in self.animals:
             animal.draw(screen)
+class UI:
+    def __init__(self):
+        panel_width = 180
+        panel_height = 40
+        panel_margin = 5
+        panel_x = WIDTH - panel_width - 20
+        start_y = 20
+        
+        self.help_button = Button(
+            panel_x, 
+            start_y, 
+            panel_width // 2 - panel_margin // 2, 
+            panel_height, 
+            "Help", 
+            (220, 220, 220), 
+            (240, 240, 240), 
+            "help"
+        )
+        self.exit_button = Button(
+            panel_x + panel_width // 2 + panel_margin // 2, 
+            start_y, 
+            panel_width // 2 - panel_margin // 2, 
+            panel_height, 
+            "Exit", 
+            (220, 100, 100), 
+            (240, 120, 120), 
+            "exit"
+        )
+        
+        self.buttons = [
+            Button(panel_x, start_y + panel_height + panel_margin, 
+                   panel_width, panel_height, "Calm Weather", 
+                   (200, 230, 255), (220, 240, 255), "calm", alpha=200),
+            Button(panel_x, start_y + (panel_height + panel_margin) * 2, 
+                   panel_width, panel_height, "Stormy Weather", 
+                   (100, 120, 140), (120, 140, 160), "stormy", alpha=200),
+            Button(panel_x, start_y + (panel_height + panel_margin) * 3, 
+                   panel_width, panel_height, "Hot Weather", 
+                   (255, 220, 150), (255, 230, 170), "hot", alpha=200)
+        ]
+        
+        self.slider_y = start_y + (panel_height + panel_margin) * 4 + 10
+        self.slider_label = small_font.render("Sky Color:", True, BLACK)
+        self.slider = ColorSlider(
+            panel_x, 
+            self.slider_y + 20, 
+            panel_width, 
+            20
+        )
+        
+        speed_button_width = 40
+        speed_button_x = panel_x + (panel_width - speed_button_width * 2 - panel_margin) / 2
+        speed_button_y = self.slider_y + 80
+        
+        self.speed_label = small_font.render("Sun Speed:", True, BLACK)
+        self.speed_down = Button(
+            speed_button_x, 
+            speed_button_y, 
+            speed_button_width, 
+            40, 
+            "-", 
+            (220, 220, 220), 
+            (240, 240, 240), 
+            "speed_down"
+        )
+        self.speed_up = Button(
+            speed_button_x + speed_button_width + panel_margin, 
+            speed_button_y, 
+            speed_button_width, 
+            40, 
+            "+", 
+            (220, 220, 220), 
+            (240, 240, 240), 
+            "speed_up"
+        )
+        
+        self.show_help = False
+    
+    def handle_events(self, event, weather):
+        action = self.help_button.handle_event(event)
+        if action == "help":
+            self.show_help = not self.show_help
+            return
+            
+        action = self.exit_button.handle_event(event)
+        if action == "exit":
+            return "exit"
+        
+        for button in self.buttons:
+            action = button.handle_event(event)
+            if action:
+                weather.transition_to(action)
+                return
+            
+        action = self.speed_up.handle_event(event)
+        if action == "speed_up":
+            weather.sun_speed *= 1.5
+            return
+            
+        action = self.speed_down.handle_event(event)
+        if action == "speed_down":
+            weather.sun_speed *= 0.5
+            return
+        
+        if self.slider.handle_event(event):
+            weather.target_sky_color = self.slider.get_color()
+            weather.transition_progress = 0.0
+    
+    def draw(self, screen, weather):
+        title_text = "Weather Environment Simulator"
+        title_surface = title_font.render(title_text, True, BLACK)
+        title_rect = title_surface.get_rect(center=(WIDTH // 2, 30))
+        
+        pygame.draw.rect(screen, (255, 255, 255, 180), 
+                        (title_rect.left - 20, title_rect.top - 10, 
+                         title_rect.width + 40, title_rect.height + 20),
+                        border_radius=10)
+        screen.blit(title_surface, title_rect)
+        
+        weather_text = f"Current Weather: {weather.current_weather.capitalize()}"
+        weather_surface = main_font.render(weather_text, True, BLACK)
+        weather_rect = weather_surface.get_rect(center=(WIDTH // 2, 70))
+        
+        pygame.draw.rect(screen, (255, 255, 255, 180), 
+                        (weather_rect.left - 20, weather_rect.top - 5, 
+                         weather_rect.width + 40, weather_rect.height + 10),
+                        border_radius=10)
+        screen.blit(weather_surface, weather_rect)
+        
+        time_of_day = ""
+        if weather.sun_progress < 0.25:
+            time_of_day = "Morning"
+        elif weather.sun_progress < 0.5:
+            time_of_day = "Noon"
+        elif weather.sun_progress < 0.75:
+            time_of_day = "Afternoon"
+        else:
+            time_of_day = "Evening"
+            
+        sun_text = f"Time of Day: {time_of_day}"
+        sun_surface = main_font.render(sun_text, True, BLACK)
+        sun_rect = sun_surface.get_rect(center=(WIDTH // 2, 110))
+        
+        pygame.draw.rect(screen, (255, 255, 255, 180), 
+                        (sun_rect.left - 20, sun_rect.top - 5, 
+                         sun_rect.width + 40, sun_rect.height + 10),
+                        border_radius=10)
+        screen.blit(sun_surface, sun_rect)
+        
+        self.help_button.draw(screen)
+        self.exit_button.draw(screen)
+        
+        for button in self.buttons:
+            button.draw(screen)
+        
+        screen.blit(self.slider_label, (self.slider.rect.left, self.slider_y))
+        self.slider.draw(screen)
+        
+        screen.blit(self.speed_label, (self.speed_down.rect.left, self.speed_down.rect.y - 20))
+        self.speed_up.draw(screen)
+        self.speed_down.draw(screen)
+        
+        shortcuts_text = "Keyboard Shortcuts: C = Calm, S = Stormy, H = Hot"
+        shortcuts_surface = small_font.render(shortcuts_text, True, BLACK)
+        shortcuts_rect = shortcuts_surface.get_rect(bottomleft=(20, HEIGHT - 20))
+        
+        pygame.draw.rect(screen, (255, 255, 255, 180), 
+                        (shortcuts_rect.left - 5, shortcuts_rect.top - 5, 
+                         shortcuts_rect.width + 10, shortcuts_rect.height + 10),
+                        border_radius=5)
+        screen.blit(shortcuts_surface, shortcuts_rect)
+        
+        if self.show_help:
+            self.draw_help_panel(screen)
+    
+    def draw_help_panel(self, screen):
+        help_surface = pygame.Surface((WIDTH // 2, HEIGHT // 2), pygame.SRCALPHA)
+        help_surface.fill((240, 240, 240, 220))
+        
+        pygame.draw.rect(help_surface, BLACK, (0, 0, WIDTH // 2, HEIGHT // 2), 2, border_radius=10)
+        
+        help_title = title_font.render("Help", True, BLACK)
+        help_surface.blit(help_title, (WIDTH // 4 - help_title.get_width() // 2, 20))
+        
+        instructions = [
+            "• Click the weather buttons to change the environment",
+            "• Press 'C' for Calm weather",
+            "• Press 'S' for Stormy weather", 
+            "• Press 'H' for Hot weather",
+            "• Use the slider to adjust the sky color",
+            "• Use + and - buttons to change sun movement speed",
+            "",
+            "Weather types affect animals and environment:",
+            "• Calm: Birds and rabbits appear",
+            "• Hot: Rabbits move slower and rest more",
+            "• Stormy: Lightning, rain, and frogs appear",   
+        ]
+        
+        for i, instruction in enumerate(instructions):
+            text = main_font.render(instruction, True, BLACK)
+            help_surface.blit(text, (30, 80 + i * 30))
+        
+        screen.blit(help_surface, (WIDTH // 4, HEIGHT // 4))
 
 def main():
     running = True
