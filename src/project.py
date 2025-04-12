@@ -128,7 +128,36 @@ class Bird(Animal):
         wing_rect = rotated_wing.get_rect(center=(self.x, wing_y))
         screen.blit(rotated_wing, wing_rect)
 
-
+class Button:
+    def __init__(self,x,y,width,height,text,color,hover_color,action=None,alpha=255):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = text
+        self.color = color
+        self.hover_color=hover_color
+        self.action=action
+        self.is_hovered=False
+        self.aplha=alpha
+    def handle_event(self,event):
+        if event.type == pygame.MOUSEMOTION:
+            self.is_hovered=self.rect.collidepoint(event.pos)
+        elif event.type ==pygame.MOUSEBUTTONDOWN:
+            if self.is_hovered and self.action:
+                return self.action
+        return None
+    def draw(self,screen):
+        button_surface=pygame.Surface((self.rect.width,self.rect.height),pygame.SRCALPHA)
+        color = self.hover_color if self.is_hovered else self.color
+        color_with_alpha = (color[0], color[1], color[2], self.alpha)
+        pygame.draw.rect(button_surface, color_with_alpha, 
+                        (0, 0, self.rect.width, self.rect.height), 
+                        border_radius=10)
+        pygame.draw.rect(button_surface, (0, 0, 0, self.alpha), 
+                        (0, 0, self.rect.width, self.rect.height), 
+                        2, border_radius=10)
+        text_surface=main_font.render(self.text, True,BLACK)
+        text_rect = text_surface.get_rect(center=(self.rect.width//2, self.rect.height//2))
+        button_surface.blit(text_surface, text_rect)
+        screen.blit(button_surface, self.rect)
 def main():
     running = True
     while running:
