@@ -463,6 +463,262 @@ class ColorSlider:
                         border_radius=5)
         screen.blit(highlight, self.knob_rect)
         pygame.draw.rect(screen, BLACK, self.knob_rect, 2, border_radius=5)
+class Weather:
+    def __init__(self):
+        self.current_sky_color = BLUE
+        self.target_sky_color = BLUE
+        self.transition_speed = 0.02
+        self.transition_progress = 1.0
+        self.sun_pos = [100, HEIGHT - 100]
+        self.sun_radius = 40
+        self.sun_progress = 0.0
+        self.sun_speed = 0.0005
+        self.clouds = []
+        self.raindrops = []
+        self.lightning_timer = 0
+        self.show_lightning = False
+        self.animals = []
+        self.current_weather = "calm"
+        for _ in range(5):
+            self.clouds.append({
+                'x': random.randint(0, WIDTH),
+                'y': random.randint(50, 200),
+                'width': random.randint(80, 150),
+                'height': random.randint(40, 70),
+                'speed': random.uniform(0.5, 1.5)
+            })
+        self.generate_animals("calm")
+    
+    def generate_animals(self, weather_type):
+        self.animals = []
+        if weather_type == "calm":
+            for _ in range(8):
+                self.animals.append(Bird(
+                    random.randint(0, WIDTH),
+                    random.randint(50, 250),
+                    random.uniform(1, 3)
+                ))
+            for _ in range(5):
+                self.animals.append(Bunny(
+                    random.randint(50, WIDTH-50),
+                    HEIGHT - 80,
+                    random.uniform(0.5, 1.5)
+                ))
+        elif weather_type == "stormy":
+            for _ in range(5):
+                self.animals.append(Frog(
+                    random.randint(50, WIDTH-50),
+                    HEIGHT - 100,
+                    random.uniform(0.5, 1.5)
+                ))
+        elif weather_type == "hot":
+            for _ in range(7):
+                bunny = Bunny(
+                    random.randint(50, WIDTH-50),
+                    HEIGHT - 80,
+                    random.uniform(0.3, 0.8)
+                )
+                bunny.sit_timer = random.randint(180, 300)
+                self.animals.append(bunny)
+    
+    def transition_to(self, weather_type):
+        if weather_type == self.current_weather:
+            return
+        self.current_weather = weather_type
+        self.transition_progress = 0.0
+        if weather_type == "calm":
+            self.target_sky_color = BLUE
+            self.raindrops = []
+            self.generate_animals("calm")
+        elif weather_type == "stormy":
+            self.target_sky_color = DARK_GRAY
+            self.clouds = []
+            for _ in range(10):
+                self.clouds.append({
+                    'x': random.randint(0, WIDTH),
+                    'y': random.randint(50, 200),
+                    'width': random.randint(120, 200),
+                    'height': random.randint(60, 100),
+                    'speed': random.uniform(1.5, 3)
+                })
+            self.generate_animals("stormy")
+        elif weather_type == "hot":
+            self.target_sky_color = (200, 220, 255)
+            self.raindrops = []
+            self.clouds = []
+            for _ in range(3):
+                self.clouds.append({
+                    'x': random.randint(0, WIDTH),
+                    'y': random.randint(50, 150),
+                    'width': random.randint(60, 100),
+                    'height': random.randint(30, 50),
+                    'speed': random.uniform(0.3, 0.8)
+                })
+            self.generate_animals("hot")
+    
+    def lerp_color(self, color1, color2, t):
+        return (
+            int(color1[0] + (color2[0] - color1[0]) * t),
+            int(color1[1] + (color2[1] - color1[1]) * t),
+            int(color1[2] + (color2[2] - color1[2]) * t)
+        )
+    
+    def update_sun_position(self):
+        self.sun_progress += self.sun_speed
+        if self.sun_progress > 1.0:
+            self.sun_progress = 0.0
+        angle = self.sun_progress * math.pi
+        center_x = WIDTH // 2
+        ellipse_width = WIDTH * 0.8
+        ellipse_height = HEIGHT * 0.6
+        self.sun_pos[0] = center_x + math.cos(angle) * ellipse_width / 2
+        self.sun_pos[1] = HEIGHT - 50 - abs(math.sin(angle)) * ellipse_height
+        self.sun_radius = 30 + int(20 * (1 - abs(0.5 - self.sun_progress) * 2))
+    
+    def update(self):
+        self.update_sun_position()
+        if self.transition_progress < 1.0:
+            self.transition_progress += self.transition_speed
+            if self.transition_progress > 1.0:
+                self.transition_progress = 1.0
+            self.current_sky_color = self.lerp_color(
+                self.current_sky_color,
+                self.target_sky_color,
+                self.transition_speed * 10
+            )
+        for cloud in self.clouds:
+            cloud['x'] += cloud['speed']
+            if cloud['x'] > WIDTH + cloud['width']:
+                cloud['x'] = -cloud['width']
+                cloud['y'] = random.randint(50, 200)
+        if self.target_sky_color == DARK_GRAY:
+            self.lightning_timer -= 1
+            if self.lightning_timer <= 0:
+                if random.random() < 0.01:
+                    self.show_lightning = True
+                    self.lightning_timer = 5
+                    for _ in range(20):
+                        self.raindrops.append({
+                            'x': random.randint(0, WIDTH),
+                            'y': random.randint(0, HEIGHT // 3),
+                            'speed': random.uniform(5, 15),
+                            'length': random.randint(10, 30)
+                        })
+            else:
+                self.show_lightning = False
+        for drop in self.raindrops[:]:
+            drop['y'] += drop['speed']
+            if drop['y'] > HEIGHT:
+                self.raindrops.remove(drop)
+        if self.target_sky_color == DARK_GRAY and random.random() < 0.3:
+            for _ in range(5):
+                self.raindrops.append({
+                    'x': random.randint(0, WIDTH),
+                    'y': 0,
+                    'speed': random.uniform(5, 15),
+                    'length': random.randint(10, 30)
+                })
+        for animal in self.animals:
+            animal.update()
+            if self.show_lightning and isinstance(animal, (Bunny, Frog)):
+                if isinstance(animal, Bunny):
+                    animal.is_sitting = True
+                    animal.sit_timer = 60
+                elif isinstance(animal, Frog):
+                    animal.jump_state = 1
+    
+    def draw_sun(self, screen):
+        if self.target_sky_color == DARK_GRAY:
+            return
+        if self.sun_progress < 0.25 or self.sun_progress > 0.75:
+            sun_color = (
+                min(255, 255 - int(100 * (0.25 - abs(0.5 - self.sun_progress)))),
+                min(255, 165 - int(100 * (0.25 - abs(0.5 - self.sun_progress)))),
+                0
+            )
+        else:
+            sun_color = YELLOW
+        for i in range(5, 0, -1):
+            glow_radius = self.sun_radius + i * 5
+            glow_color = (
+                min(255, sun_color[0] + 50),
+                min(255, sun_color[1] + 50),
+                min(255, sun_color[2] + 50),
+                100 - i * 15
+            )
+            glow_surface = pygame.Surface((glow_radius * 2, glow_radius * 2), pygame.SRCALPHA)
+            pygame.draw.circle(glow_surface, glow_color, (glow_radius, glow_radius), glow_radius)
+            screen.blit(glow_surface, (self.sun_pos[0] - glow_radius, self.sun_pos[1] - glow_radius))
+        pygame.draw.circle(screen, sun_color, self.sun_pos, self.sun_radius)
+        for _ in range(15):
+            angle = random.uniform(0, 2 * math.pi)
+            length = random.uniform(self.sun_radius, self.sun_radius * 1.5)
+            end_x = self.sun_pos[0] + math.cos(angle) * length
+            end_y = self.sun_pos[1] + math.sin(angle) * length
+            pygame.draw.line(
+                screen, 
+                (sun_color[0], sun_color[1], sun_color[2], 150),
+                self.sun_pos,
+                (end_x, end_y),
+                2
+            )
+        if self.target_sky_color[0] > 200:
+            for i in range(8):
+                angle = i * (math.pi / 4)
+                end_x = self.sun_pos[0] + math.cos(angle) * (self.sun_radius + 30)
+                end_y = self.sun_pos[1] + math.sin(angle) * (self.sun_radius + 30)
+                pygame.draw.line(
+                    screen, 
+                    (255, 255, 255, 100),
+                    (self.sun_pos[0] + math.cos(angle) * self.sun_radius,
+                     self.sun_pos[1] + math.sin(angle) * self.sun_radius),
+                    (end_x, end_y), 
+                    3
+                )
+    
+    def draw(self, screen):
+        if self.sun_progress < 0.5:
+            for y in range(HEIGHT):
+                t = y / HEIGHT
+                r = int(self.current_sky_color[0] * (1 - t * 0.3))
+                g = int(self.current_sky_color[1] * (1 - t * 0.3))
+                b = int(self.current_sky_color[2] * (1 - t * 0.3))
+                pygame.draw.line(screen, (r, g, b), (0, y), (WIDTH, y))
+        else:
+            for y in range(HEIGHT):
+                t = y / HEIGHT
+                r = int(self.current_sky_color[0] * (0.7 + t * 0.3))
+                g = int(self.current_sky_color[1] * (0.7 + t * 0.3))
+                b = int(self.current_sky_color[2] * (0.7 + t * 0.3))
+                pygame.draw.line(screen, (r, g, b), (0, y), (WIDTH, y))
+        self.draw_sun(screen)
+        for cloud in self.clouds:
+            draw_cloud(screen, cloud['x'], cloud['y'], cloud['width'], cloud['height'], WHITE)
+        if self.show_lightning:
+            start_x = random.randint(WIDTH // 4, WIDTH * 3 // 4)
+            start_y = 0
+            segments = 10
+            points = [(start_x, start_y)]
+            for _ in range(segments):
+                last_x, last_y = points[-1]
+                new_x = last_x + random.randint(-30, 30)
+                new_y = last_y + random.randint(30, 60)
+                points.append((new_x, new_y))
+                if new_y > HEIGHT:
+                    break
+            for i in range(len(points) - 1):
+                pygame.draw.line(screen, YELLOW, points[i], points[i+1], 3)
+        for drop in self.raindrops:
+            pygame.draw.line(
+                screen, 
+                (200, 200, 255), 
+                (drop['x'], drop['y']), 
+                (drop['x'], drop['y'] + drop['length']), 
+                2
+            )
+        pygame.draw.rect(screen, GREEN, (0, HEIGHT - 80, WIDTH, 80))
+        for animal in self.animals:
+            animal.draw(screen)
 
 def main():
     running = True
