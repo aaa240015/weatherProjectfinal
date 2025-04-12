@@ -356,9 +356,6 @@ class Frog(Animal):
                             (self.x + 15 * self.size,
                               self.y - 10 * self.size), 
                             int(leg_width * 0.7))
-
-
-
 class Button:
     def __init__(self,x,y,width,height,text,color,hover_color,action=None,alpha=255):
         self.rect = pygame.Rect(x, y, width, height)
@@ -389,6 +386,84 @@ class Button:
         text_rect = text_surface.get_rect(center=(self.rect.width//2, self.rect.height//2))
         button_surface.blit(text_surface, text_rect)
         screen.blit(button_surface, self.rect)
+class ColorSlider:
+    def __init__(self,x,y,width,height):
+        self.rect =pygame.Rect(x,y,width,height)
+        self.knob_rect=pygame.Rect(x,y,20,height)
+        self.knob_rect.centerx=x+width //2
+        self.dragging=False
+        self.value=0.5
+    def handle_event(self,event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.dragging=True
+                self.update.knob_position(event.pos[0])
+        elif event.type==pygame.MOUSEBUTTONUP:
+                 self.dragging = False
+        elif event.type == pygame.MOUSEMOTION and self.dragging:
+            self.update_knob_position(event.pos[0])
+            return True
+        return False
+    def update_knob_position(self, mouse_x):
+        knob_x = max(self.rect.left, min(mouse_x, self.rect.right))
+        self.knob_rect.centerx = knob_x
+        self.value = (knob_x - self.rect.left) / self.rect.width
+    def get_color(self):
+        if self.value<0.33:
+            t=self.value/0.33
+            return(
+                int(255 * t + 50 * (1 - t)),
+                int(165 * t + 100 * (1 - t)),
+                int(0 * t + 50 * (1 - t))
+            )
+        elif self.value<0.66:
+            t=(self.value-0.33)/0.33
+            return(
+                int(135 * t + 100 * (1 - t)),
+                int(206 * t + 180 * (1 - t)),
+                int(235 * t + 200 * (1 - t))
+            )
+        else:
+            t = (self.value - 0.66) / 0.34
+            return (
+                int(255 * t + 135 * (1 - t)),
+                int(0 * t + 206 * (1 - t)),
+                int(0 * t + 235 * (1 - t))
+            )
+    def draw(self,screen):
+        for i in range(self.rect.width):
+            t=i/self.rect.width
+            if t<0.33:
+                subt = t / 0.33
+                r = int(255 * subt + 50 * (1 - subt))
+                g = int(165 * subt + 100 * (1 - subt))
+                b = int(0 * subt + 50 * (1 - subt))
+            elif t < 0.66:
+                subt = (t - 0.33) / 0.33
+                r = int(135 * subt + 100 * (1 - subt))
+                g = int(206 * subt + 180 * (1 - subt))
+                b = int(235 * subt + 200 * (1 - subt))
+            else:
+                subt = (t - 0.66) / 0.34
+                r = int(255 * subt + 135 * (1 - subt))
+                g = int(0 * subt + 206 * (1 - subt))
+                b = int(0 * subt + 235 * (1 - subt))
+            pygame.draw.line(screen, (r, g, b), 
+                            (self.rect.left + i, self.rect.top),
+                            (self.rect.left + i, self.rect.bottom))
+        pygame.draw.rect(screen, BLACK, self.rect, 2)
+        knob_color = (70, 130, 180)
+        pygame.draw.ellipse(screen, (100, 100, 100, 100), 
+                          (self.knob_rect.x + 2, self.knob_rect.y + 2, 
+                           self.knob_rect.width, self.knob_rect.height))
+        pygame.draw.rect(screen, knob_color, self.knob_rect, border_radius=5)
+        highlight = pygame.Surface((self.knob_rect.width, self.knob_rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(highlight, (255, 255, 255, 50), 
+                        (0, 0, self.knob_rect.width, self.knob_rect.height // 2), 
+                        border_radius=5)
+        screen.blit(highlight, self.knob_rect)
+        pygame.draw.rect(screen, BLACK, self.knob_rect, 2, border_radius=5)
+
 def main():
     running = True
     while running:
