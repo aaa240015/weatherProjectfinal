@@ -1,12 +1,12 @@
-# Weather Environment Simulator ! 
+# Weather Environment Simulator
 ## Demo
 Demo Video: <URL>
 ## GitHub Repository
 GitHub Repo: https://github.com/aaa240015/weatherProjectfinal
 
 ## Description 
-The Weather Environment Simulator is an interactive program in Python that simulates weather conditions and their effects on a natural environment. The Weather Environmental Simulator is written using the Pygame software library. 
-This simulator implements the following features: 
+The Weather Environment Simulator is an interactive program in Python that simulates weather conditions and how the conditions can be used to express someone's mood and help the person relax through meditaion. It shows three conditons , hot for discomfort, calm for a calm mood and stormy for a lonley mood.
+The following features are captured : 
 - Three different states of weather (Calm, Stormy, and Hot) 
 - Day and night cycle with a moving sun- Animation of animal behaviors in reaction to the weather 
 - User control of the various states of the weather and environment 
@@ -26,4 +26,5 @@ This simulator implements the following features:
 - Speed of sun movement is adjustable 
 - Sky color is a gradient that changes with the rest of the environmental variables 
 ###  Customization Feature 
-- User can change the colors based on an interactive slider
+- User can change the colors based on an interactive slider 
+- USer can use keyboard inputs to alter the conditions. H for hot , C for calm and S for stormy
